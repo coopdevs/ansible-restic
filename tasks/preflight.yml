@@ -33,3 +33,16 @@
     restic_checksum: "{{ item.split(' ')[0] }}"
   with_items: "{{ (_checksums.content | b64decode).split('\n') }}"
   when: "('restic_' + restic_version + '_linux_' + go_arch + '.bz2') in item"
+
+- name: Execute command to get libcap version
+  command: "dpkg-query --showformat='${Version}' --show libcap2"
+  register: libcap_version_full
+  changed_when: false
+
+- name: Filter libcap version
+  set_fact:
+    libcap_version: "{{ libcap_version_full.stdout | regex_replace('^(\\d+:)?(\\d+\\.\\d+).*$', '\\2') }}"
+
+- name: Display libcap version
+  debug:
+    var: libcap_version

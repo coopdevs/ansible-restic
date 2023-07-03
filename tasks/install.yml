@@ -79,7 +79,7 @@
     - ansible_os_family | lower == "debian"
     - restic_user != 'root'
 
-- name: Set proper capabilities for restic binary
+- name: Set proper capabilities for restic binary when libcap <= 2.40
   capabilities:
     path: '{{ restic_install_path }}/restic'
     capability: cap_dac_read_search+ep
@@ -87,3 +87,11 @@
   when:
     - restic_user != 'root'
     - not ansible_check_mode
+    - libcap_version < '2.41'
+
+- name: Set proper capabilities for restic binary when libcap > 2.40
+  command: setcap cap_dac_read_search=ep {{ restic_install_path }}/restic
+  when:
+    - restic_user != 'root'
+    - not ansible_check_mode
+    - libcap_version >= '2.41'
