@@ -24,5 +24,6 @@
 - include: configure_repos.yml
   with_items: '{{ restic_repos }}'
   become: true
+  no_log: true
   tags:
     - restic_configure
