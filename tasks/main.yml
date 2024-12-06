@@ -1,13 +1,14 @@
 ---
-- include: preflight.yml
+- include_tasks: preflight.yml
   tags:
     - restic_install
     - restic_configure
 
-- include: install.yml
+- block:
+  - include_tasks: install.yml
+    tags:
+      - restic_install
   become: true
-  tags:
-    - restic_install
 
 - name: Whitelist restic to run certain commands with sudo
   template:
@@ -21,9 +22,10 @@
   tags:
     - restic_configure
 
-- include: configure_repos.yml
-  with_items: '{{ restic_repos }}'
+- block:
+  - include_tasks: configure_repos.yml
+    with_items: '{{ restic_repos }}'
+    no_log: true
+    tags:
+      - restic_configure
   become: true
-  no_log: true
-  tags:
-    - restic_configure
